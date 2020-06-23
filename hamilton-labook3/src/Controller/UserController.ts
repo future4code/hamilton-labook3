@@ -117,4 +117,35 @@ export class UserController {
     }
     await BaseDatabase.destroyConnection();
   }
+
+  async deleteFriend(req: Request, res: Response) {
+    try {
+      const token = req.headers.authorization as string;
+      const idData = auth.getData(token);
+      const tokenId = idData.id;
+
+      const userId = req.body.id;
+
+      const isFriend = await userDb.isFriend(tokenId, userId);
+
+      if (tokenId === userId) {
+        throw new Error("Você não pode se deletar");
+      }
+
+      if (!isFriend) {
+        throw new Error("Vocês não são amigos");
+      }
+
+      await userBusiness.deleteFriend(tokenId, userId);
+
+      res.status(200).send({
+        message: "Vocês não são mais amigos :(",
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message,
+      });
+    }
+    await BaseDatabase.destroyConnection();
+  }
 }

@@ -15,4 +15,8 @@ export class UserBusiness {
   public async addFriend(req_friend: string, res_friend: string) {
     await this.userDatabase.addFriend(req_friend, res_friend)
   }
+
+  public async deleteFriend(req_friend: string, res_friend: string) {
+    await this.userDatabase.deleteFriend(req_friend, res_friend)
+  }
 }
