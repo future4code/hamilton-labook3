@@ -11,4 +11,5 @@ export class UserBusiness {
   ) {
     await this.userDatabase.signUp(id, name, email, password);
   }
+
 }
