@@ -12,4 +12,7 @@ export class UserBusiness {
     await this.userDatabase.signUp(id, name, email, password);
   }
 
+  public async addFriend(req_friend: string, res_friend: string) {
+    await this.userDatabase.addFriend(req_friend, res_friend)
+  }
 }

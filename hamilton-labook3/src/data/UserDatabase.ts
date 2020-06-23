@@ -29,4 +29,26 @@ export class UserDatabase extends BaseDatabase {
 
     return result[0];
   }
+
+  public async isFriend(req_friend: string, res_friend: string): Promise<any> {
+    const isfriend = await this.getConnection().raw(`
+    SELECT * FROM LaFriends 
+    WHERE req_friend = "${req_friend}" 
+    AND res_friend = "${res_friend}"
+    `);
+
+    return isfriend[0][0];
+  }
+
+  public async addFriend(
+    req_friend: string,
+    res_friend: string
+  ): Promise<void> {
+    await this.getConnection()
+      .insert({
+        req_friend,
+        res_friend,
+      })
+      .into("LaFriends");
+  }
 }

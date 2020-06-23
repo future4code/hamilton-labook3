@@ -4,6 +4,7 @@ import { IdGenerator } from "../services/IdGenerator";
 import { HashManager } from "../services/HashManager";
 import { Authenticator } from "../services/Authenticator";
 import { UserDatabase } from "../data/UserDatabase";
+import { BaseDatabase } from "../data/BaseDatabase";
 
 const userBusiness: UserBusiness = new UserBusiness();
 const userDb: UserDatabase = new UserDatabase();
@@ -49,6 +50,7 @@ export class UserController {
         message: err.message,
       });
     }
+    await BaseDatabase.destroyConnection();
   }
 
   async login(req: Request, res: Response) {
@@ -78,12 +80,41 @@ export class UserController {
       const accessToken = auth.generateToken({ id: user.id });
 
       res.status(200).send({
-        accessToken
+        accessToken,
       });
     } catch (err) {
       res.status(400).send({
         message: err.message,
       });
     }
+    await BaseDatabase.destroyConnection();
+  }
+
+  async addFriend(req: Request, res: Response) {
+    try {
+      const token = req.headers.authorization as string;
+      const idData = auth.getData(token);
+      const tokenId = idData.id;
+
+      const userId = req.body.id;
+
+      const isFriend = await userDb.isFriend(tokenId, userId);
+
+      if (tokenId === userId) {
+        throw new Error("Você não pode se adicionar");
+      }
+      if (isFriend) {
+        throw new Error("Vocês já são amigos");
+      }
+
+      await userBusiness.addFriend(tokenId, userId);
+
+      res.status(200).send({
+        message: "Amigo adicionado!",
+      });
+    } catch (err) {
+      res.status(400).send({ message: err.message });
+    }
+    await BaseDatabase.destroyConnection();
   }
 }
