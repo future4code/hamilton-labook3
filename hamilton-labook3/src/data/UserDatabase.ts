@@ -20,4 +20,57 @@ export class UserDatabase extends BaseDatabase {
       throw new Error(err.message);
     }
   }
+
+  public async getUserByEmail(email: string): Promise<any> {
+    const result = await this.getConnection()
+      .select("*")
+      .from("LabookUsers")
+      .where({ email });
+
+    return result[0];
+  }
+
+  public async isFriend(req_friend: string, res_friend: string): Promise<any> {
+    const isfriend = await this.getConnection().raw(`
+    SELECT * FROM LaFriends 
+    WHERE (req_friend = "${req_friend}" AND res_friend = "${res_friend}")
+    OR (res_friend = "${req_friend}" AND re_friend = "${res_friend}")
+    `);
+
+    return isfriend[0][0];
+  }
+
+  public async addFriend(
+    req_friend: string,
+    res_friend: string
+  ): Promise<void> {
+    await this.getConnection()
+      .insert({
+        req_friend,
+        res_friend,
+      })
+      .into("LaFriends");
+  }
+
+  public async deleteFriend(
+    req_friend: string,
+    res_friend: string
+  ): Promise<void> {
+    await this.getConnection().raw(`
+      DELETE FROM LaFriends
+      WHERE (req_friend = "${req_friend}" AND res_friend = "${res_friend}")
+      OR (res_friend = "${req_friend}" AND req_friend = "${res_friend}")
+    `);
+  }
+
+  // public async deleteFriend(
+  //   req_friend: string,
+  //   res_friend: string
+  // ): Promise<void> {
+  //   await this.getConnection()
+  //     .del()
+  //     .from("LaFriends")
+  //     .where({ req_friend: req_friend, res_friend: res_friend })
+  //     .orWhere({ req_friend: res_friend, res_friend: req_friend });
+  // }
 }
