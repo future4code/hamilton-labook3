@@ -62,15 +62,4 @@ export class UserDatabase extends BaseDatabase {
       OR (res_friend = "${req_friend}" AND req_friend = "${res_friend}")
     `);
   }
-
-  // public async deleteFriend(
-  //   req_friend: string,
-  //   res_friend: string
-  // ): Promise<void> {
-  //   await this.getConnection()
-  //     .del()
-  //     .from("LaFriends")
-  //     .where({ req_friend: req_friend, res_friend: res_friend })
-  //     .orWhere({ req_friend: res_friend, res_friend: req_friend });
-  // }
 }
