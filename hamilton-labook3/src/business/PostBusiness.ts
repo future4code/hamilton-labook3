@@ -21,4 +21,8 @@ export class PostBusiness {
       createdBy
     );
   }
+
+  public async getPosts(id: string) {
+    return await this.postDatabase.getPosts(id);
+  }
 }

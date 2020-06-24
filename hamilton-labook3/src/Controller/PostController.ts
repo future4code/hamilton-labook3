@@ -42,4 +42,22 @@ export class PostController {
       });
     }
   }
+
+  async getPosts(req: Request, res: Response) {
+    try {
+      const token = req.headers.authorization as string;
+      const idData = auth.getData(token);
+      const tokenId = idData.id;
+
+      const posts = await postBusiness.getPosts(tokenId)
+
+      res.status(200).send({
+        posts
+      })
+    } catch (err) {
+      res.status(400).send({
+        message: err.message,
+      });
+    }
+  }
 }

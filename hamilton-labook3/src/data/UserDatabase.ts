@@ -34,7 +34,7 @@ export class UserDatabase extends BaseDatabase {
     const isfriend = await this.getConnection().raw(`
     SELECT * FROM LaFriends 
     WHERE (req_friend = "${req_friend}" AND res_friend = "${res_friend}")
-    OR (res_friend = "${req_friend}" AND re_friend = "${res_friend}")
+    OR (res_friend = "${req_friend}" AND req_friend = "${res_friend}")
     `);
 
     return isfriend[0][0];
