@@ -49,11 +49,11 @@ export class PostController {
       const idData = auth.getData(token);
       const tokenId = idData.id;
 
-      const posts = await postBusiness.getPosts(tokenId)
+      const posts = await postBusiness.getPosts(tokenId);
 
       res.status(200).send({
-        posts
-      })
+        posts,
+      });
     } catch (err) {
       res.status(400).send({
         message: err.message,
