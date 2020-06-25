@@ -60,4 +60,25 @@ export class PostController {
       });
     }
   }
+
+  async getPostByType(req: Request, res: Response) {
+    try {
+
+      const token = req.headers.authorization!
+      const id = auth.getData(token).id
+      const postType = req.query.type as string
+
+      const posts = await postBusiness.getPostByType(id, postType)
+
+      res.status(200).send({
+
+        posts: posts
+      })
+
+    } catch (err) {
+      res.status(400).send({
+        message: err.message,
+      });
+    }
+  }
 }
