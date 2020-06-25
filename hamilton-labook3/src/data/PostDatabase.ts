@@ -1,6 +1,8 @@
 import { BaseDatabase } from "./BaseDatabase";
 import { Post } from "../model/Post";
 
+// TODO: ENCERRAR AS CONEXÕES
+
 export class PostDatabase extends BaseDatabase {
   tableName: string = "LaPosts";
   public async createPost(
@@ -80,5 +82,14 @@ export class PostDatabase extends BaseDatabase {
     } else {
       return postArray;
     }
+  }
+
+  public async likePost(postId: string, userId: string): Promise<void> {
+    await this.getConnection()
+      .insert({
+        postId,
+        userId,
+      })
+      .into("LaBookLikes");
   }
 }

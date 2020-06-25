@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { IdGenerator } from "../services/IdGenerator";
 import { Authenticator } from "../services/Authenticator";
 import { PostBusiness } from "../business/PostBusiness";
-import { BaseDatabase } from "../data/BaseDatabase";
 
 const postBusiness: PostBusiness = new PostBusiness();
 const idGenerator = new IdGenerator();
