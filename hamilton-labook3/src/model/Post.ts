@@ -24,7 +24,7 @@ export enum PostType {
   EVENTO = "evento",
 }
 
-// export interface PostOrderInputDTO {
-//   by: string;
-//   type: string;
-// }
+export interface PostOrderInputDTO {
+   by: string;
+   type: string;
+ }

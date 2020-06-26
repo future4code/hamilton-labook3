@@ -1,7 +1,5 @@
 import { BaseDatabase } from "./BaseDatabase";
-import { Post } from "../model/Post";
-
-// TODO: ENCERRAR AS CONEXÕES
+import { Post, PostOrderInputDTO } from "../model/Post";
 
 export class PostDatabase extends BaseDatabase {
   tableName: string = "LaPosts";
@@ -82,6 +80,54 @@ export class PostDatabase extends BaseDatabase {
       return postArray;
     }
   }
+  public async getPostsByTypeAndSort(postType: string, order: PostOrderInputDTO) : Promise<Post[]>{
+    const result = await this.getConnection()
+    .select("*")
+    .from(this.tableName)
+    .where({type: postType})
+    .orderBy(order.by, order.type);
+
+    const postArray: Post[] = [];
+
+    if(result){
+        for (const post of result) {
+
+            const newPost = new Post(post.name, post.createdAt, post.description, post.photo, Post.mapStringToPostType(post.type));
+            postArray.push(newPost);
+        }
+        return postArray;
+
+    }else{
+
+        return postArray;
+    }
+}
+async getPostsBySortAndPage(order: PostOrderInputDTO, postsPerPage: number, offset: number): Promise<Post[]>{
+
+  const result = await this.getConnection()
+  .select("*")
+  .from(this.tableName)
+  //.where({type: postType})
+  .orderBy(order.by, order.type)
+  .limit(postsPerPage)
+  .offset(offset);
+
+  const postArray: Post[] = [];
+
+  if(result){
+    for (const post of result) {
+
+        const newPost = new Post(post.name, post.createdAt, post.description, post.photo, Post.mapStringToPostType(post.type));
+        postArray.push(newPost);
+    }
+    return postArray;
+
+  }else{
+
+    return postArray;
+ }
+
+}
 
   public async isLiked(postId: string, userId: string): Promise<any> {
     const result = await this.getConnection()
