@@ -77,4 +77,38 @@ export class PostController {
       });
     }
   }
+
+  async likePost(req: Request, res: Response) {
+    try {
+      const token = req.headers.authorization!;
+      const id = auth.getData(token).id;
+      const { postId } = req.params;
+
+      if (!postId) {
+        throw new Error("Invalid Post ID");
+      }
+
+      const searchPost = await postBusiness.searchPost(postId);
+
+      if (!searchPost) {
+        throw new Error("Post doesn't exist");
+      }
+
+      const isLiked = await postBusiness.isLiked(postId, id);
+
+      if (isLiked) {
+        throw new Error("You already liked this post");
+      }
+
+      await postBusiness.likePost(postId, id);
+
+      res.status(200).send({
+        message: "Post Liked",
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message,
+      });
+    }
+  }
 }

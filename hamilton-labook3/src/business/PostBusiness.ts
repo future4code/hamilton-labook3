@@ -24,7 +24,20 @@ export class PostBusiness {
   public async getPosts(id: string) {
     return await this.postDatabase.getPosts(id);
   }
+
   public async getPostByType(id: string, postType: string) {
     return await this.postDatabase.getPostByType(id, postType);
+  }
+
+  public async searchPost(postId: string) {
+    return await this.postDatabase.searchPost(postId)
+  }
+
+  public async isLiked(postId: string, userId: string) {
+    return await this.postDatabase.isLiked(postId, userId)
+  }
+
+  public async likePost(postId: string, userId: string) {
+    await this.postDatabase.likePost(postId, userId)
   }
 }

@@ -84,11 +84,29 @@ export class PostDatabase extends BaseDatabase {
     }
   }
 
+  public async isLiked(postId: string, userId: string): Promise<any> {
+    const result = await this.getConnection()
+      .select("*")
+      .from("LaBookLikes")
+      .where({ postId, likedBy: userId });
+
+    return result[0];
+  }
+
+  public async searchPost(postId: string): Promise<any> {
+    const result = await this.getConnection()
+      .select("*")
+      .from("LaPosts")
+      .where({ id: postId });
+
+    return result[0];
+  }
+
   public async likePost(postId: string, userId: string): Promise<void> {
     await this.getConnection()
       .insert({
         postId,
-        userId,
+        likedBy: userId,
       })
       .into("LaBookLikes");
   }
