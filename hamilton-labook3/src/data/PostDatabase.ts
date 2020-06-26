@@ -24,7 +24,6 @@ export class PostDatabase extends BaseDatabase {
       })
       .into("LaPosts");
   }
-
   public async getPosts(id: string): Promise<any> {
     const result = await this.getConnection().raw(`
       SELECT LabookUsers.name, LaPosts.createdAt, LaPosts.description, LaPosts.photo
@@ -110,4 +109,25 @@ export class PostDatabase extends BaseDatabase {
       })
       .into("LaBookLikes");
   }
+  public async dislikePost(postId: string, userId: string): Promise<void> {
+    await this.getConnection()
+      .del()
+      .from("LaBookLikes")
+      .where({postId,
+        likedBy: userId })
+  }
+  public async createComment(
+    postId: string,
+    comment: string,
+    authorId: string
+    
+    ) {
+      await this.getConnection()
+       .insert({
+          postId,
+          comment,
+          authorId
+       })
+       .into("LaComments")
+    }
 }

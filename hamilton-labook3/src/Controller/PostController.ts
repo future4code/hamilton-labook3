@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { IdGenerator } from "../services/IdGenerator";
 import { Authenticator } from "../services/Authenticator";
 import { PostBusiness } from "../business/PostBusiness";
+import { BaseDatabase } from "../data/BaseDatabase";
 
 const postBusiness: PostBusiness = new PostBusiness();
 const idGenerator = new IdGenerator();
@@ -40,6 +41,7 @@ export class PostController {
         message: err.message,
       });
     }
+    await BaseDatabase.destroyConnection();
   }
 
   async getPosts(req: Request, res: Response) {
@@ -58,6 +60,7 @@ export class PostController {
         message: err.message,
       });
     }
+    await BaseDatabase.destroyConnection();
   }
 
   async getPostByType(req: Request, res: Response) {
@@ -76,6 +79,7 @@ export class PostController {
         message: err.message,
       });
     }
+    await BaseDatabase.destroyConnection();
   }
 
   async likePost(req: Request, res: Response) {
@@ -110,5 +114,73 @@ export class PostController {
         message: err.message,
       });
     }
+    await BaseDatabase.destroyConnection();
+  }
+  async dislikePost(req: Request, res: Response) {
+
+    try {
+      const token = req.headers.authorization!;
+      const id = auth.getData(token).id;
+
+      const { postId } = req.params;
+
+      if (!postId) {
+        throw new Error("Invalid Post ID");
+      }
+
+      const searchPost = await postBusiness.searchPost(postId);
+
+      if (!searchPost) {
+        throw new Error("Post doesn't exist");
+      }
+
+      const isLiked = await postBusiness.isLiked(postId, id);
+
+      if (!isLiked) {
+        throw new Error("You didn't like this post");
+      }
+
+      await postBusiness.dislikePost(postId, id);
+
+      res.status(200).send({
+        message: "Post disliked",
+      });
+
+    } catch (err) {
+      res.status(400).send({
+        message: err.message,
+      });
+    }
+    await BaseDatabase.destroyConnection();
+  }
+
+  async comment(req: Request, res: Response) {
+    try {
+      const token = req.headers.authorization!;
+      const authorId = auth.getData(token).id;
+      const { comment } = req.body;
+      const { postId } = req.params;
+
+      if (!postId) {
+        throw new Error("Invalid Post ID");
+      }
+
+      const searchPost = await postBusiness.searchPost(postId);
+
+      if (!searchPost) {
+        throw new Error("Post doesn't exist");
+      }
+
+      await postBusiness.createComment(postId, comment, authorId);
+
+      res.status(200).send({
+        message: "Post commented",
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message,
+      });
+    }
+    await BaseDatabase.destroyConnection();
   }
 }
