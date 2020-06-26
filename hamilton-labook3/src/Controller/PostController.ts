@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { IdGenerator } from "../services/IdGenerator";
 import { Authenticator } from "../services/Authenticator";
 import { PostBusiness } from "../business/PostBusiness";
-import { BaseDatabase } from "../data/BaseDatabase";
 
 const postBusiness: PostBusiness = new PostBusiness();
 const idGenerator = new IdGenerator();
@@ -49,11 +48,11 @@ export class PostController {
       const idData = auth.getData(token);
       const tokenId = idData.id;
 
-      const posts = await postBusiness.getPosts(tokenId)
+      const posts = await postBusiness.getPosts(tokenId);
 
       res.status(200).send({
-        posts
-      })
+        posts,
+      });
     } catch (err) {
       res.status(400).send({
         message: err.message,
@@ -63,18 +62,49 @@ export class PostController {
 
   async getPostByType(req: Request, res: Response) {
     try {
+      const token = req.headers.authorization!;
+      const id = auth.getData(token).id;
+      const postType = req.query.type as string;
 
-      const token = req.headers.authorization!
-      const id = auth.getData(token).id
-      const postType = req.query.type as string
-
-      const posts = await postBusiness.getPostByType(id, postType)
+      const posts = await postBusiness.getPostByType(id, postType);
 
       res.status(200).send({
+        posts: posts,
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message,
+      });
+    }
+  }
 
-        posts: posts
-      })
+  async likePost(req: Request, res: Response) {
+    try {
+      const token = req.headers.authorization!;
+      const id = auth.getData(token).id;
+      const { postId } = req.params;
 
+      if (!postId) {
+        throw new Error("Invalid Post ID");
+      }
+
+      const searchPost = await postBusiness.searchPost(postId);
+
+      if (!searchPost) {
+        throw new Error("Post doesn't exist");
+      }
+
+      const isLiked = await postBusiness.isLiked(postId, id);
+
+      if (isLiked) {
+        throw new Error("You already liked this post");
+      }
+
+      await postBusiness.likePost(postId, id);
+
+      res.status(200).send({
+        message: "Post Liked",
+      });
     } catch (err) {
       res.status(400).send({
         message: err.message,

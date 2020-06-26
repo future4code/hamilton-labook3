@@ -1,6 +1,8 @@
 import { BaseDatabase } from "./BaseDatabase";
 import { Post } from "../model/Post";
 
+// TODO: ENCERRAR AS CONEXÕES
+
 export class PostDatabase extends BaseDatabase {
   tableName: string = "LaPosts";
   public async createPost(
@@ -36,21 +38,21 @@ export class PostDatabase extends BaseDatabase {
       OR LaPosts.createdBy IN (
       SELECT req_friend 
       FROM LaFriends
-      WHERE res_friend = "${id}");
-    `)
+      WHERE res_friend = "${id}")
+      ORDER BY LaPosts.createdAt DESC;
+    `);
 
-    return result[0]
+    return result[0];
   }
 
-  public async getPostByType(id:string, postType:string): Promise<Post[]> {
-
+  public async getPostByType(id: string, postType: string): Promise<Post[]> {
     const result = await this.getConnection().raw(
-    `  
-    SELECT LabookUsers.name, LaPosts.createdAt, LaPosts.description, LaPosts.photo
+      `  
+    SELECT LabookUsers.name, LaPosts.createdAt, LaPosts.description, LaPosts.photo, LaPosts.type
     FROM LaPosts
     JOIN LabookUsers
-    ON LaPosts.createdBy = LabookUsers.id
-    AND LaPosts.type = "${postType}"
+    ON (LaPosts.createdBy = LabookUsers.id
+    AND LaPosts.type = "${postType}")
     WHERE LaPosts.createdBy IN (
     SELECT res_friend 
     FROM LaFriends
@@ -58,25 +60,54 @@ export class PostDatabase extends BaseDatabase {
     OR LaPosts.createdBy IN (
     SELECT req_friend 
     FROM LaFriends
-    WHERE res_friend = "${id}");
-  `)
-     const postArray : Post[] = []
+    WHERE res_friend = "${id}")
+    ORDER BY LaPosts.createdAt DESC;
+  `
+    );
+    const postArray: Post[] = [];
 
-     if(result) {
-       for(let post of result[0]) {
+    if (result) {
+      for (let post of result[0]) {
+        const newPost = new Post(
+          post.name,
+          post.createdAt,
+          post.description,
+          post.photo,
+          Post.mapStringToPostType(post.type)
+        );
 
-         const newPost = new Post(post.name, post.createdAt, post.description,post.photo, Post.mapStringToPostType(post.type))
-         
-              postArray.push(newPost);
-              
-       }
-          return postArray;
-
-      } else {
-
-          return postArray;
-       }
-     }
-
+        postArray.push(newPost);
+      }
+      return postArray;
+    } else {
+      return postArray;
+    }
   }
 
+  public async isLiked(postId: string, userId: string): Promise<any> {
+    const result = await this.getConnection()
+      .select("*")
+      .from("LaBookLikes")
+      .where({ postId, likedBy: userId });
+
+    return result[0];
+  }
+
+  public async searchPost(postId: string): Promise<any> {
+    const result = await this.getConnection()
+      .select("*")
+      .from("LaPosts")
+      .where({ id: postId });
+
+    return result[0];
+  }
+
+  public async likePost(postId: string, userId: string): Promise<void> {
+    await this.getConnection()
+      .insert({
+        postId,
+        likedBy: userId,
+      })
+      .into("LaBookLikes");
+  }
+}
