@@ -3,6 +3,7 @@ import { IdGenerator } from "../services/IdGenerator";
 import { Authenticator } from "../services/Authenticator";
 import { PostBusiness } from "../business/PostBusiness";
 import { BaseDatabase } from "../data/BaseDatabase";
+import { PostOrderInputDTO } from "../model/Post";
 
 const postBusiness: PostBusiness = new PostBusiness();
 const idGenerator = new IdGenerator();
@@ -81,7 +82,33 @@ export class PostController {
     }
     await BaseDatabase.destroyConnection();
   }
+  async getPostsBySortAndPage(request: Request, response: Response) {
 
+    try {
+        
+        const order: PostOrderInputDTO =
+        { 
+          by: "createdAt",
+          type: "ASC"   
+        }
+        const page: number = Number(request.body.page) >=1 ? Number(request.body.page): 1;
+
+        if(request.body.orderBy === "createdAt" || request.body.orderBy === "type"){
+            order.by = request.body.orderBy
+        }
+
+        if(request.body.orderType === "DESC"){
+            order.type = request.body.orderType;
+        }
+
+        const result = await new PostBusiness().getPostsBySortAndPage(order, page);
+        response.status(200).send(result);
+    } catch (err) {
+        response.status(400).send({ error: err.message })
+    }
+    await BaseDatabase.destroyConnection();
+}
+  
   async likePost(req: Request, res: Response) {
     try {
       const token = req.headers.authorization!;

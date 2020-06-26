@@ -1,4 +1,5 @@
 import { PostDatabase } from "../data/PostDatabase";
+import { PostOrderInputDTO } from "../model/Post";
 
 export class PostBusiness {
   private postDatabase = new PostDatabase();
@@ -28,7 +29,17 @@ export class PostBusiness {
   public async getPostByType(id: string, postType: string) {
     return await this.postDatabase.getPostByType(id, postType);
   }
+  //Não fizemos end point pra essa
+  public async getPostsByTypeAndSort(postType: string, order: PostOrderInputDTO) {
+    return await this.postDatabase.getPostsByTypeAndSort(postType, order);
+  }
+  async getPostsBySortAndPage(order: PostOrderInputDTO, page: number) {
 
+    const postsPerPage = 5;
+    let offset =  postsPerPage * (page - 1); 
+    return await new PostDatabase().getPostsBySortAndPage(order, postsPerPage, offset);
+}
+  
   public async searchPost(postId: string) {
     return await this.postDatabase.searchPost(postId)
   }
