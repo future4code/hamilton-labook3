@@ -40,4 +40,20 @@ export class PostBusiness {
   public async likePost(postId: string, userId: string) {
     await this.postDatabase.likePost(postId, userId)
   }
+
+  public async dislikePost(postId: string, userId: string) {
+    await this.postDatabase.dislikePost(postId, userId)
+
+  }
+  public async createComment(
+    postId: string,
+    comment: string,
+    authorId: string
+    ) {
+    await this.postDatabase.createComment(
+      postId, 
+      comment,
+      authorId
+      )
+    }
 }
